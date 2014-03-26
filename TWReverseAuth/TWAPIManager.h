@@ -42,6 +42,11 @@
 
 typedef void(^ReverseAuthResponseHandler)(NSData *responseData, NSError *error);
 
+typedef NS_ENUM(NSInteger, TWAuthType) {
+    TWAuthTypeRead,
+    TWAuthTypeReadWrite
+};
+
 @interface TWAPIManager : NSObject
 
 +(void)registerTwitterAppKey:(NSString *)theAppKey andAppSecret:(NSString *)theAppSecret;
@@ -62,7 +67,7 @@ typedef void(^ReverseAuthResponseHandler)(NSData *responseData, NSError *error);
  *      authenticated calls to Twitter.
  */
 + (void)performReverseAuthForAccount:(ACAccount *)account withHandler:(ReverseAuthResponseHandler)handler;
-
++ (void)performReverseAuthForAccount:(ACAccount *)account withHandler:(ReverseAuthResponseHandler)handler authType:(TWAuthType)authType;
 /**
  *  Returns an instance of either SLRequest or TWRequest, depending on runtime
  *  availability.

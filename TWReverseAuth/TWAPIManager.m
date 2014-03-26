@@ -86,6 +86,10 @@ typedef void(^TWAPIHandler)(NSData *data, NSError *error);
  *                  main thread.
  */
 + (void)performReverseAuthForAccount:(ACAccount *)account withHandler:(TWAPIHandler)handler {
+    [self performReverseAuthForAccount:account withHandler:handler authType:TWAuthTypeReadWrite];
+}
+
++ (void)performReverseAuthForAccount:(ACAccount *)account withHandler:(TWAPIHandler)handler authType:(TWAuthType)authType {
   NSParameterAssert(account);
   [self _step1WithCompletion:^(NSData *data, NSError *error) {
     if (!data) {
@@ -105,7 +109,7 @@ typedef void(^TWAPIHandler)(NSData *data, NSError *error);
                      });
                    }];
     }
-  }];
+  } authType:authType];
 }
 
 #define TW_API_ROOT                  @"https://api.twitter.com"
@@ -168,12 +172,13 @@ typedef void(^TWAPIHandler)(NSData *data, NSError *error);
  *  @param completion   The block to call when finished.  Can be called on any
  *                      thread.
  */
-+ (void)_step1WithCompletion:(TWAPIHandler)completion
++ (void)_step1WithCompletion:(TWAPIHandler)completion authType:(TWAuthType)authType
 {
   NSURL *url = [NSURL URLWithString:TW_OAUTH_URL_REQUEST_TOKEN];
-  NSDictionary *dict = [NSDictionary
+  NSMutableDictionary *dict = [[NSDictionary
                         dictionaryWithObject:TW_X_AUTH_MODE_REVERSE_AUTH
-                        forKey:TW_X_AUTH_MODE_KEY];
+                        forKey:TW_X_AUTH_MODE_KEY] mutableCopy];
+  dict[@"x_auth_access_type"] = authType == TWAuthTypeRead ? @"read" : @"write";
   TWSignedRequest *step1Request = [[TWSignedRequest alloc]
                                    initWithURL:url
                                    parameters:dict
